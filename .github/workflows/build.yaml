@@ -12,4 +12,4 @@ jobs:
       - run: cmake --version
       - run: cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${{github.workspace}}/vcpkg/scripts/buildsystems/vcpkg.cmake -S ${{github.workspace}} -B ${{github.workspace}}/../build
       - run: cmake --build ${{github.workspace}}/../build --config Release
-      - run: ctest --test-dir ${{github.workspace}}/../build -C Release
+      - run: ctest --test-dir ${{github.workspace}}/../build -C Release --output-on-failure
