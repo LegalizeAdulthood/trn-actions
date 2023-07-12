@@ -64,7 +64,12 @@
             "configuration": "Release",
             "inherits": [
                 "test-ninja-vcpkg"
-            ]
+            ],
+            "filter": {
+                "exclude": {
+                    "name": "NNTPConnectedTest.*"
+                }
+            }
         }
     ]
 }
