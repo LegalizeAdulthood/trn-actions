@@ -1,0 +1,12 @@
+name: build
+run-name: ${{github.actor}} build
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - run: mkdir ${{github.workspace}}/../build
+      - run: cmake -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${{github.workspace}}/vcpkg/scripts/buildsystems/vcpkg.cmake -S ${{github.workspace}} -B ${{github.workspace}}/../build
