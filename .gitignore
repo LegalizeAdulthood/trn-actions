@@ -3,3 +3,6 @@
 
 # CMake build dir
 ./build
+
+# Visual Studio Open Folder directory
+**/.vs
