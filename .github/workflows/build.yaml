@@ -5,7 +5,7 @@ on:
   push:
   pull_request:
 jobs:
-  build:
+  build-linux:
     runs-on: ubuntu-latest
     env:
       SOURCE_PATH: ${{github.workspace}}
@@ -18,11 +18,29 @@ jobs:
           submodules: true
       - name: CMake version
         run: cmake --version
-      - name: Create build directory
-        run: mkdir $BUILD_PATH
       - name: CMake configure ${{env.BUILD_TYPE}}
         run: cmake -DCMAKE_TOOLCHAIN_FILE:FILEPATH=$SOURCE_PATH/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE:STRING=$BUILD_TYPE -S $SOURCE_PATH -B $BUILD_PATH
       - name: CMake build ${{env.BUILD_TYPE}}
         run: cmake --build $BUILD_PATH --config $BUILD_TYPE
       - name: CTest ${{env.BUILD_TYPE}}
         run: ctest --test-dir $BUILD_PATH -C $BUILD_TYPE --output-on-failure -E NNTPConnectedTest.*
+
+  build-windows:
+    runs-on: windows-latest
+    env:
+      SOURCE_PATH: ${{github.workspace}}
+      BUILD_PATH: ${{github.workspace}}/../build
+      BUILD_TYPE: Release
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: CMake version
+        run: cmake --version
+      - name: CMake configure ${{env.BUILD_TYPE}}
+        run: cmake -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${{env.SOURCE_PATH}}/vcpkg/scripts/buildsystems/vcpkg.cmake -S ${{env.SOURCE_PATH}} -B ${{env.BUILD_PATH}}
+      - name: CMake build ${{env.BUILD_TYPE}}
+        run: cmake --build ${{env.BUILD_PATH}} --config ${{env.BUILD_TYPE}}
+      - name: CTest ${{env.BUILD_TYPE}}
+        run: ctest --test-dir ${{env.BUILD_PATH}} -C ${{env.BUILD_TYPE}} --output-on-failure -E NNTPConnectedTest.*
