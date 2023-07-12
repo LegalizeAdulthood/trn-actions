@@ -7,12 +7,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      SOURCE_PATH: ${{github.workspace}}
+      BUILD_PATH: ${{github.workspace}}/../build
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: true
-      - run: mkdir ${{github.workspace}}/../build
+      - run: mkdir $BUILD_PATH
       - run: cmake --version
-      - run: cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${{github.workspace}}/vcpkg/scripts/buildsystems/vcpkg.cmake -S ${{github.workspace}} -B ${{github.workspace}}/../build
-      - run: cmake --build ${{github.workspace}}/../build --config Release
-      - run: ctest --test-dir ${{github.workspace}}/../build -C Release --output-on-failure  -E NNTPConnectedTest.*
+      - run: cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_TOOLCHAIN_FILE:FILEPATH=$SOURCE_PATH/vcpkg/scripts/buildsystems/vcpkg.cmake -S $SOURCE_PATH -B $BUILD_PATH
+      - run: cmake --build $BUILD_PATH --config Release
+      - run: ctest --test-dir $BUILD_PATH -C Release --output-on-failure -E NNTPConnectedTest.*
