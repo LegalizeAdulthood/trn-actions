@@ -30,12 +30,22 @@ jobs:
     env:
       SOURCE_PATH: ${{github.workspace}}
       BUILD_PATH: ${{github.workspace}}/../build
+      BISON_ZIP_PATH: ${{github.workspace}}/../bison-2.4.1.zip
+      BISON_PATH: ${{github.workspace}}/../bison
       BUILD_TYPE: Release
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           submodules: true
+      - name: Download bison
+        shell: powershell
+        run: |
+          Invoke-WebRequest -Uri http://user.xmission.com/~legalize/trn-actions/bison-2.4.1.zip -OutFile "${{env.BISON_ZIP_PATH}}"
+          mkdir ${{env.BISON_PATH}}
+          cd ${{env.BISON_PATH}}
+          7z x -y ${{env.BISON_ZIP_PATH}}
+          Add-Content $env:GITHUB_PATH "${{env.BISON_PATH}}/bin"
       - name: CMake version
         run: cmake --version
       - name: CMake configure ${{env.BUILD_TYPE}}
