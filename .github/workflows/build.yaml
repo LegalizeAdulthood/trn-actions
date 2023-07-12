@@ -5,33 +5,16 @@ on:
   push:
   pull_request:
 jobs:
-  build-linux:
-    runs-on: ubuntu-latest
+  build:
+    name: build-${{matrix.os}}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{matrix.os}}
     env:
       SOURCE_PATH: ${{github.workspace}}
       BUILD_PATH: ${{github.workspace}}/../build
-      BUILD_TYPE: Release
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-      - name: CMake version
-        run: cmake --version
-      - name: CMake configure ${{env.BUILD_TYPE}}
-        run: cmake -DCMAKE_TOOLCHAIN_FILE:FILEPATH=$SOURCE_PATH/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE:STRING=$BUILD_TYPE -S $SOURCE_PATH -B $BUILD_PATH
-      - name: CMake build ${{env.BUILD_TYPE}}
-        run: cmake --build $BUILD_PATH --config $BUILD_TYPE
-      - name: CTest ${{env.BUILD_TYPE}}
-        run: ctest --test-dir $BUILD_PATH -C $BUILD_TYPE --output-on-failure -E NNTPConnectedTest.*
-
-  build-windows:
-    runs-on: windows-latest
-    env:
-      SOURCE_PATH: ${{github.workspace}}
-      BUILD_PATH: ${{github.workspace}}/../build
-      BISON_ZIP_PATH: ${{github.workspace}}/../bison-2.4.1.zip
-      BISON_PATH: ${{github.workspace}}/../bison
       BUILD_TYPE: Release
     steps:
       - name: Checkout
@@ -39,9 +22,14 @@ jobs:
         with:
           submodules: true
       - name: Download bison
+        if: matrix.os == 'windows-latest'
         shell: powershell
+        env:
+          BISON_ZIP_URL: http://user.xmission.com/~legalize/trn-actions/bison-2.4.1.zip
+          BISON_ZIP_PATH: ${{github.workspace}}/../bison-2.4.1.zip
+          BISON_PATH: ${{github.workspace}}/../bison
         run: |
-          Invoke-WebRequest -Uri http://user.xmission.com/~legalize/trn-actions/bison-2.4.1.zip -OutFile "${{env.BISON_ZIP_PATH}}"
+          Invoke-WebRequest -Uri ${{env.BISON_ZIP_URL}} -OutFile "${{env.BISON_ZIP_PATH}}"
           mkdir ${{env.BISON_PATH}}
           cd ${{env.BISON_PATH}}
           7z x -y ${{env.BISON_ZIP_PATH}}
@@ -49,8 +37,12 @@ jobs:
       - name: CMake version
         run: cmake --version
       - name: CMake configure ${{env.BUILD_TYPE}}
-        run: cmake -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${{env.SOURCE_PATH}}/vcpkg/scripts/buildsystems/vcpkg.cmake -S ${{env.SOURCE_PATH}} -B ${{env.BUILD_PATH}}
+        run: cmake -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${{env.SOURCE_PATH}}/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -S ${{env.SOURCE_PATH}} -B ${{env.BUILD_PATH}}
       - name: CMake build ${{env.BUILD_TYPE}}
-        run: cmake --build ${{env.BUILD_PATH}} --config ${{env.BUILD_TYPE}}
+        run: cmake --build $BUILD_PATH --config $BUILD_TYPE
       - name: CTest ${{env.BUILD_TYPE}}
+        if: matrix.os == 'ubuntu-latest'
+        run: ctest --test-dir ${{env.BUILD_PATH}} -C ${{env.BUILD_TYPE}} --output-on-failure -E NNTPConnectedTest.*
+      - name: CTest ${{env.BUILD_TYPE}}
+        if: matrix.os != 'ubuntu-latest'
         run: ctest --test-dir ${{env.BUILD_PATH}} -C ${{env.BUILD_TYPE}} --output-on-failure
