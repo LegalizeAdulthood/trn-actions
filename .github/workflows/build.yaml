@@ -39,7 +39,7 @@ jobs:
       - name: CMake configure ${{env.BUILD_TYPE}}
         run: cmake -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${{env.SOURCE_PATH}}/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -S ${{env.SOURCE_PATH}} -B ${{env.BUILD_PATH}}
       - name: CMake build ${{env.BUILD_TYPE}}
-        run: cmake --build $BUILD_PATH --config $BUILD_TYPE
+        run: cmake --build ${{env.BUILD_PATH}} --config ${{env.BUILD_TYPE}}
       - name: CTest ${{env.BUILD_TYPE}}
         if: matrix.os == 'ubuntu-latest'
         run: ctest --test-dir ${{env.BUILD_PATH}} -C ${{env.BUILD_TYPE}} --output-on-failure -E NNTPConnectedTest.*
