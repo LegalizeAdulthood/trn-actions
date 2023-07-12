@@ -10,12 +10,19 @@ jobs:
     env:
       SOURCE_PATH: ${{github.workspace}}
       BUILD_PATH: ${{github.workspace}}/../build
+      BUILD_TYPE: Release
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
         with:
           submodules: true
-      - run: mkdir $BUILD_PATH
-      - run: cmake --version
-      - run: cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_TOOLCHAIN_FILE:FILEPATH=$SOURCE_PATH/vcpkg/scripts/buildsystems/vcpkg.cmake -S $SOURCE_PATH -B $BUILD_PATH
-      - run: cmake --build $BUILD_PATH --config Release
-      - run: ctest --test-dir $BUILD_PATH -C Release --output-on-failure -E NNTPConnectedTest.*
+      - name: CMake version
+        run: cmake --version
+      - name: Create build directory
+        run: mkdir $BUILD_PATH
+      - name: CMake configure ${{env.BUILD_TYPE}}
+        run: cmake -DCMAKE_TOOLCHAIN_FILE:FILEPATH=$SOURCE_PATH/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE:STRING=$BUILD_TYPE -S $SOURCE_PATH -B $BUILD_PATH
+      - name: CMake build ${{env.BUILD_TYPE}}
+        run: cmake --build $BUILD_PATH --config $BUILD_TYPE
+      - name: CTest ${{env.BUILD_TYPE}}
+        run: ctest --test-dir $BUILD_PATH -C $BUILD_TYPE --output-on-failure -E NNTPConnectedTest.*
