@@ -53,4 +53,4 @@ jobs:
       - name: CMake build ${{env.BUILD_TYPE}}
         run: cmake --build ${{env.BUILD_PATH}} --config ${{env.BUILD_TYPE}}
       - name: CTest ${{env.BUILD_TYPE}}
-        run: ctest --test-dir ${{env.BUILD_PATH}} -C ${{env.BUILD_TYPE}} --output-on-failure -E NNTPConnectedTest.*
+        run: ctest --test-dir ${{env.BUILD_PATH}} -C ${{env.BUILD_TYPE}} --output-on-failure
