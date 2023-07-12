@@ -1,5 +1,5 @@
 name: build
-run-name: ${{github.actor}} build
+run-name: ${{github.actor}} ${{github.event_name}}
 on:
   workflow_dispatch:
   push:
