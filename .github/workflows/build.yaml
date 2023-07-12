@@ -9,4 +9,5 @@ jobs:
         with:
           submodules: true
       - run: mkdir ${{github.workspace}}/../build
-      - run: cmake -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${{github.workspace}}/vcpkg/scripts/buildsystems/vcpkg.cmake -S ${{github.workspace}} -B ${{github.workspace}}/../build
+      - run: cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${{github.workspace}}/vcpkg/scripts/buildsystems/vcpkg.cmake -S ${{github.workspace}} -B ${{github.workspace}}/../build
+      - run: cmake --build ${{github.workspace}}/../build --config Release
